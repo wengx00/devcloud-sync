@@ -20,41 +20,40 @@ if (!rootPath) {
   process.exit(1);
 }
 
-const ws = new WebSocket(`ws://${devCloudInfo.host}:${devCloudInfo.wsPort}`);
 const sftp = new SFTP();
 sftp
-  .connect({
-    host: devCloudInfo.host,
-    port: devCloudInfo.port,
-    username: devCloudInfo.username,
-    privateKey: devCloudInfo.privateKey,
-  })
-  .then(() => {
-    console.log(chalk.grey("[SFTP]"), "Connected to server");
+.connect({
+  host: devCloudInfo.host,
+  port: devCloudInfo.port,
+  username: devCloudInfo.username,
+  privateKey: devCloudInfo.privateKey,
+})
+.then(() => {
+  console.log(chalk.grey("[SFTP]"), "Connected to server");
+  const ws = new WebSocket(`ws://${devCloudInfo.host}:${devCloudInfo.wsPort}`);
+    ws.on("message", (data) => {
+      const path = data.toString("utf8");
+      console.log(chalk.grey("[WS]"), "Received changed file", chalk.yellow(path));
+      const splittedPath = path.split("/").filter(item => item.length);
+      let currentPath = rootPath;
+      splittedPath.forEach((pathPart, index) => {
+        currentPath += "/" + pathPart;
+        if (index === splittedPath.length - 1) return;
+        if (!existsSync(currentPath)) {
+          mkdirSync(currentPath);
+        }
+      });
+      // 传输文件
+      sftp.fastGet(`${devCloudInfo.remoteRootPath}/${path}`, currentPath)
+        .then(() => {
+          console.log(chalk.grey("[SFTP]"), "Downloaded file", chalk.yellow(path));
+        })
+        .catch(err => {
+          console.log(chalk.red("[SFTP]"), "Download file", chalk.yellow(path), "failed", err)
+        })
+    });
   })
   .catch(err => {
     console.log(chalk.red("[SFTP]"), "Failed to connect to server", err);
     process.exit(1);
   });
-
-ws.on("message", (data) => {
-  const path = data.toString("utf8");
-  console.log(chalk.grey("[WS]"), "Received changed file", chalk.yellow(path));
-  const splittedPath = path.split("/").filter(item => item.length);
-  let currentPath = rootPath;
-  splittedPath.forEach((pathPart, index) => {
-    currentPath += "/" + pathPart;
-    if (index === splittedPath.length - 1) return;
-    if (!existsSync(currentPath)) {
-      mkdirSync(currentPath);
-    }
-  });
-  // 传输文件
-  sftp.fastGet(`${devCloudInfo.remoteRootPath}/${path}`, currentPath)
-    .then(() => {
-      console.log(chalk.grey("[SFTP]"), "Downloaded file", chalk.yellow(path));
-    })
-    .catch(err => {
-      console.log(chalk.red("[SFTP]"), "Download file", chalk.yellow(path), "failed", err)
-    })
-});
