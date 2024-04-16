@@ -64,4 +64,5 @@ chokidar
       chalk.green(rootPath)
     );
   })
-  .on("change", onChange);
+  .on("change", onChange)
+  .on('add', onChange);
