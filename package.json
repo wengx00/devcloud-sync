@@ -1,0 +1,28 @@
+{
+  "name": "devcloud-auto-sdk",
+  "version": "1.0.0",
+  "description": "",
+  "main": "",
+  "scripts": {
+    "dev:server": "ts-node-dev server.ts",
+    "build": "tsc",
+    "start:server": "node ./dist/server.js",
+    "start:client": "node ./dist/client.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/node": "^20.12.7",
+    "@types/ssh2-sftp-client": "^9.0.3",
+    "@types/ws": "^8.5.10",
+    "ts-node-dev": "^2.0.0",
+    "typescript": "^5.4.5"
+  },
+  "dependencies": {
+    "chalk": "4.1.2",
+    "chokidar": "^3.6.0",
+    "ssh2-sftp-client": "^10.0.3",
+    "ws": "^8.16.0"
+  }
+}
