@@ -1,6 +1,7 @@
 import chokidar from "chokidar";
 import chalk from "chalk";
 import WebSocket from "ws";
+import { resolve } from "path";
 
 const rootPath = process.argv[2];
 
@@ -22,6 +23,8 @@ const wsPool = new Set<WebSocket>();
 
 wss.on("connection", (ws) => {
   wsPool.add(ws);
+  // 发送当前监听的 RootPath
+  ws.send(resolve(rootPath));
   // 同步历史改动
   history.forEach((path) => {
     ws.send(path);
@@ -61,7 +64,7 @@ chokidar
     console.log(
       chalk.grey("[Watcher]"),
       "Watching for changes in",
-      chalk.green(rootPath)
+      chalk.green(resolve(rootPath))
     );
   })
   .on("change", onChange)

@@ -37,4 +37,6 @@
    yarn start:client /path/to/dist
    ```
 
+   注意 path 最后不要加上 `/`
+
 然后就可以愉快的 coding 了~
